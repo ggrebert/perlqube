@@ -6,6 +6,7 @@ build:
   stage: build
   image: perl
   script:
+    - find . -type f -not -path "./.git/*" -print0 | xargs -0 sed -i "s|@@PROJECT_VERSION@@|${CI_COMMIT_REF_NAME}|g"
     - cpanm --installdeps --notest --with-recommends --with-configure .
     - perl Build.PL
     - ./Build manifest
