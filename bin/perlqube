@@ -1,0 +1,110 @@
+#!/usr/bin/perl
+
+package main;
+
+use strict;
+use warnings;
+
+use PerlQube::Command qw< run >;
+
+# Begin program.  Don't run when loaded as a library.
+# This %ENV check is to allow perlcritic to function when bundled under PAR,
+# which invokes this program not as the top stack frame.
+exit run() if not caller or $ENV{PAR_0};
+
+1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+C<perlqube> - Command-line interface to critique Perl source
+
+=head1 SYNOPSIS
+
+    perlqube [Options...] {FILE|DIRECTORY}
+
+=head1 DESCRIPTION
+
+C<perlqube> is a Perl source code analyzer. it use the L<Perl::Critic> engine.
+
+=head1 ARGUMENTS
+
+The arguments are paths to the files you wish to analyze.  You may specify
+multiple files.  If an argument is a directory, C<perlqube> will analyze all
+Perl files below the directory.
+
+=head1 OPTIONS
+
+=over
+
+=item C<--severity NUMBER>
+
+=item C<-s NUMBER>
+
+=item C<--severity NAME>
+
+=item C<-s NAME>
+
+Directs C<perlcritic> to only apply Policies with a severity greater than
+C<NUMBER>.  Severity values are integers ranging from 1 (least severe) to 5 (most
+severe).  The default is 5.  For a given C<--profile>, decreasing the
+C<--severity> will usually produce more violations. You can set the default
+value for this option in your F<.perlcriticrc> file.  You can also redefine
+the C<severity> for any Policy in your F<.perlcriticrc> file.
+
+If it is difficult for you to remember whether severity "5" is the most or
+least restrictive level, then you can use one of these named values:
+
+    SEVERITY NAME   ...is equivalent to...   SEVERITY NUMBER
+    --------------------------------------------------------
+    --severity gentle                           --severity 5
+    --severity stern                            --severity 4
+    --severity harsh                            --severity 3
+    --severity cruel                            --severity 2
+    --severity brutal                           --severity 1
+
+=item C<--json FILE>
+
+=item C<-j FILE>
+
+Output to JSON file
+
+=item C<--json-pretty>
+
+Prettify JSON output
+
+=item C<--help>
+
+=item C<-h>
+
+=item C<-?>
+
+Displays a brief summary of options and exits.
+
+=item C<--version>
+
+=item C<-v>
+
+Displays the version number of C<perlqube> and exits.
+
+=back
+
+=head1 EXIT STATUS
+
+If C<perlqube> has any errors, exits with status == 1.
+If there were no erros, exits with status == 0.
+
+=head1 SEE ALSO
+
+L<perlcritic>
+
+L<Perl::Critic>
+
+=head1 AUTHOR
+
+Geoffrey GREBERT <ggrebert@sii.fr>
+
+=cut

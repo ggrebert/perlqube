@@ -1,0 +1,10 @@
+MANIFEST
+*.bak
+_build/
+blib/
+MYMETA.*
+Build
+Build.bat
+Dockerfile
+vendor/
+dist/

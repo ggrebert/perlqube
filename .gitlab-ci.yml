@@ -1,0 +1,36 @@
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  image: perl
+  script:
+    - cpanm --installdeps --notest --with-recommends --with-configure .
+    - perl Build.PL
+    - ./Build manifest
+    - ./Build test
+    - ./Build install
+    - pp -o perlqube bin/perlqube
+  artifacts:
+    paths:
+      - perlqube
+    expire_in: 5 days
+
+deploy:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  dependencies:
+    - build
+  script:
+    - IMAGE_VERSION=${CI_COMMIT_REF_SLUG}
+    - >
+      if [ "$CI_COMMIT_REF_NAME" == "master" ]; then
+        IMAGE_VERSION=latest
+      fi
+    - docker build -t ${CI_REGISTRY_IMAGE}:${IMAGE_VERSION} .
+    - docker run -t --rm ${CI_REGISTRY_IMAGE}:${IMAGE_VERSION}
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" "$CI_REGISTRY" --password-stdin
+    - docker push ${CI_REGISTRY_IMAGE}:${IMAGE_VERSION}
