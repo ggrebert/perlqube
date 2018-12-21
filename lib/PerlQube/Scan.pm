@@ -25,13 +25,16 @@ sub new {
 sub scan {
     my ( $self ) = shift;
 
-    my @violations = $self->{config}->{perlcritic}->critique(
-        @{ $self->{config}->{files} }
-    );
+    my @files = @{ $self->{config}->{files} };
+    my @violations;
 
-    foreach my $violation (@violations) {
-        #$violation->{new} = $self->_is_new(@violations);
-        print $violation;
+    if (@files) {
+        @violations = $self->{config}->{perlcritic}->critique(@files);
+
+        foreach my $violation (@violations) {
+            #$violation->{new} = $self->_is_new(@violations);
+            print $violation;
+        }
     }
 
     return wantarray ? @violations : \@violations;

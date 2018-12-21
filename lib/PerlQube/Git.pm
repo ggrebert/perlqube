@@ -33,7 +33,7 @@ sub get_modified_files {
     my @files;
     my $all_files = $self->get_files_status;
     while (my ($key, $value) = each %{ $all_files } ) {
-        if ($value ne 'D') {
+        if ($value ne 'D' && $key =~ m/\.p[lm]$/xms) {
             push @files, $key;
         }
     }
