@@ -40,26 +40,20 @@ deploy:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" "$CI_REGISTRY" --password-stdin
     - docker push ${CI_REGISTRY_IMAGE}:${IMAGE_VERSION}
 
-critic:ref:
+critic:
   stage: critic
-  image: ${CI_REGISTRY_IMAGE}
+  image: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}
   script:
-    - perlqube -s 1 -j perlqube.json lib
+    - >
+      if [ -z "${CI_COMMIT_TAG}" ] && [ "$CI_COMMIT_REF_NAME" != "master" ]; then
+        export PERLQUBE_OPTS="--preview --git-ref-base master"
+      fi
+    - perlqube $PERLQUBE_OPTS lib
   dependencies: []
-  only:
-    - master
-    - tags
+  variables:
+    PERLQUBE_SEVERITY: brutal
+    PERLQUBE_JSON: perlqube.json
   artifacts:
     paths:
       - perlqube.json
     expire_in: 5 days
-
-critic:preview:
-  stage: critic
-  image: ${CI_REGISTRY_IMAGE}
-  script:
-    - perlqube -s 1 -j perlqube.json --preview --git-ref $CI_COMMIT_SHA --git-ref-base origin/master lib
-  dependencies: []
-  except:
-    - master
-    - tags

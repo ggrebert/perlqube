@@ -32,6 +32,9 @@ sub run {
         'json-pretty'       => \$opts->{json_pretty},
         'git-ref=s'         => \$opts->{git_ref},
         'git-ref-base=s'    => \$opts->{git_ref_base},
+        'gitlab-token=s'    => \$opts->{gitlab_token},
+        'gitlab-url=s'      => \$opts->{gitlab_url},
+        'gitlab-id=s'       => \$opts->{gitlab_id},
         'preview'           => \$opts->{preview},
         'debug'             => \$opts->{debug},
     ) or Pod::Usage::pod2usage(
