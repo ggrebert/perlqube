@@ -11,20 +11,18 @@ use List::Util qw( any );
 use PerlQube::Exception;
 
 sub new {
-    my ( $class, $ref, $base ) = @_;
-
-    if (!$ref || !$base) {
-        PerlQube::Exception::Argument->throw('Invalid git reference.');
-    }
+    my ( $class, $ref, $base, $config ) = @_;
 
     unless (IPC::Cmd::can_run('git')) {
         PerlQube::Exception::Command->throw('Git is not installed');
     }
 
-    return bless {
-        ref => $ref,
-        base => $base,
-    }, $class;
+    my $self = bless { config => $config }, $class;
+
+    $self->{ref} = $self->_init_ref($ref);
+    $self->{base} = $self->_init_base($base);
+
+    return $self;
 }
 
 sub get_modified_files {
@@ -95,11 +93,45 @@ sub is_modified_line {
     return any { $_ eq $line } @{ $self->{_blame} };
 }
 
+sub filter {
+    my ( $self, @violations ) = @_;
+
+    $self->{config}->{gitlab}->get_last_scan;
+    return map { $self->is_new_violation($_) ? $_ : () } @violations;
+}
+
+sub is_new_violation {
+    my ( $self, $violation ) = @_;
+
+    if ($self->is_new_file($violation->filename)) {
+        return 1;
+    }
+
+    if ($violation->line_number) {
+        # TODO check if is a new violation
+        # maybe line number is not identical
+        if ($self->is_already_exists($violation)) {
+            return 1;
+        }
+    }
+    elsif ($self->is_modified_line($violation->filename, $violation->line_number)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+sub is_already_exists {
+    my ( $self, $violation ) = @_;
+
+    my $currents = $self->{config}->{gitlab}->get_last_scan;
+}
+
 sub _blame {
     my ( $self, $file ) = @_;
 
     my ( @stdout, @stderr );
-    my $cmd = [ 'git', 'blame', '-s', '-C', "$self->{ref}..$self->{base}", '--', $file ];
+    my $cmd = [ 'git', 'blame', '-s', '-C', "$self->{ref}..origin/$self->{base}", '--', $file ];
 
     IPC::Run3::run3($cmd, undef, \@stdout, \@stderr);
 
@@ -108,6 +140,30 @@ sub _blame {
     }
 
     return join(q{}, @stdout) =~ m/^[0-9a-f]+\s+(\d+)\)/xmsg;
+}
+
+sub _init_ref {
+    my ( $self, $ref ) = @_;
+
+    $ref = $ref || $ENV{CI_COMMIT_SHA};
+
+    unless ( $ref =~ m/^\b[0-9a-f]{5,40}\b$/xms ) {
+        PerlQube::Exception::Argument->throw('Invalid git reference.');
+    }
+
+    return $ref
+}
+
+sub _init_base {
+    my ( $self, $base ) = @_;
+
+    $base = $base || $ENV{CI_MERGE_REQUEST_TARGET_BRANCH_NAME};
+
+    unless ( $base =~ m/^[\w\/]+$/xms ) {
+        PerlQube::Exception::Argument->throw('Invalid git branch name.');
+    }
+
+    return $base;
 }
 
 1;

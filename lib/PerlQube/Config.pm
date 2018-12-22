@@ -5,13 +5,17 @@ use warnings;
 
 use Perl::Critic;
 use PerlQube::Exception;
-
-our $VERSION = '@@PROJECT_VERSION@@';
+use PerlQube::Git;
+use PerlQube::GitLab;
 
 sub new {
     my ( $class, $opts, @argv ) = @_;
 
-    my $self = bless { }, $class;
+    if (!$opts->{json}) {
+        $opts->{json} = $ENV{PERLQUBE_JSON};
+    }
+
+    my $self = bless { opts => $opts }, $class;
 
     return $self->_init($opts, @argv);
 }
@@ -26,7 +30,13 @@ sub _init {
     if ( $opts->{preview} ) {
         # The preview mode use GIT
         # only modified files will be analyzed
-        $self->{git} = $self->_init_git($opts);
+        $self->{git} = PerlQube::Git->new(
+            $opts->{git_ref},
+            $opts->{git_ref_base},
+            $self,
+        );
+        $self->{gitlab} = PerlQube::GitLab->new($opts, $self);
+
         @files = $self->{git}->get_modified_files();
     }
     else {
@@ -36,7 +46,7 @@ sub _init {
     $self->{files} = \@files;
 
     $self->{perlcritic} = Perl::Critic->new(
-        -severity => $opts->{severity},
+        -severity => $opts->{severity} || $ENV{PERLQUBE_SEVERITY},
         -profile  => $opts->{profile},
         -theme    => $opts->{theme},
     );
@@ -46,32 +56,10 @@ sub _init {
     return $self;
 }
 
-sub _validate_git_ref {
-    my ( $self, $commit ) = @_;
-
-    return $self->_validate_commit($commit || $ENV{CI_COMMIT_SHA});
-}
-
-sub _validate_git_ref_base {
-    my ( $self, $commit ) = @_;
-
-    return $self->_validate_commit($commit || $ENV{CI_COMMIT_BEFORE_SHA});
-}
-
-sub _validate_commit {
-    my ( $self, $commit ) = @_;
-
-    if ( $commit !~ m/^[0-9a-f]+$/xms ) {
-        PerlQube::Exception::Argument->throw('Invalid commit reference.');
-    }
-
-    return $commit;
-}
-
 sub _get_files {
     my ( $self, @files ) = @_;
 
-    unless (@files) {
+    if (!@files) {
         PerlQube::Exception::Argument->throw('No file pass to argument.');
     }
 
@@ -102,17 +90,6 @@ sub _init_outputs {
     }
 
     return \@outputs;
-}
-
-sub _init_git {
-    my ( $self, $opts ) = @_;
-
-    require PerlQube::Git;
-
-    return PerlQube::Git->new(
-        $opts->{git_ref},
-        $opts->{git_ref_base}
-    );
 }
 
 1;

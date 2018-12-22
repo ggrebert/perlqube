@@ -3,6 +3,9 @@ package PerlQube::Output::Json;
 use strict;
 use warnings;
 
+use DateTime;
+use DateTime::Format::RFC3339;
+use DateTimeX::TO_JSON formatter => 'DateTime::Format::RFC3339';
 use JSON;
 
 use base qw( PerlQube::Output );
@@ -43,7 +46,10 @@ sub process {
         $json->pretty;
     }
 
-    my $output = $json->encode( \@violations );
+    my $output = $json->encode({
+        violations => \@violations,
+        timestamp => DateTime->now,
+    });
 
     open my $fh, '>:encoding(UTF-8)', $self->{output}
         or PerlQube::Exception::FileOpen->throw(

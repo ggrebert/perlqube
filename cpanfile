@@ -1,4 +1,9 @@
+requires 'DateTime';
+requires 'DateTime::Format::RFC3339';
+requires 'DateTimeX::TO_JSON';
 requires 'Exception::Class';
+requires 'HTTP::Tiny';
+requires 'IO::Socket::SSL';
 requires 'IPC::Run3';
 requires 'JSON';
 requires 'Perl::Critic';
