@@ -1,17 +1,22 @@
 stages:
   - build
   - deploy
+  - critic
 
 build:
   stage: build
   image: perl
   script:
+    # set project version
     - find . -type f -not -path "./.git/*" -print0 | xargs -0 sed -i "s|@@PROJECT_VERSION@@|${CI_COMMIT_REF_NAME}|g"
+    # install dependencies
     - cpanm --installdeps --notest --with-recommends --with-configure .
+    # build
     - perl Build.PL
     - ./Build manifest
     - ./Build test
     - ./Build install
+    # package
     - pp -o perlqube bin/perlqube
   artifacts:
     paths:
@@ -32,6 +37,29 @@ deploy:
         IMAGE_VERSION=latest
       fi
     - docker build -t ${CI_REGISTRY_IMAGE}:${IMAGE_VERSION} .
-    - docker run -t --rm ${CI_REGISTRY_IMAGE}:${IMAGE_VERSION}
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" "$CI_REGISTRY" --password-stdin
     - docker push ${CI_REGISTRY_IMAGE}:${IMAGE_VERSION}
+
+critic:ref:
+  stage: critic
+  image: ${CI_REGISTRY_IMAGE}
+  script:
+    - perlqube -s 1 -j perlqube.json lib
+  dependencies: []
+  only:
+    - master
+    - tags
+  artifacts:
+    paths:
+      - perlqube.json
+    expire_in: 5 days
+
+critic:preview:
+  stage: critic
+  image: ${CI_REGISTRY_IMAGE}
+  script:
+    - perlqube -s 1 -j perlqube.json --preview --git-ref $CI_COMMIT_SHA --git-ref-base origin/master lib
+  dependencies: []
+  except:
+    - master
+    - tags

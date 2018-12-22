@@ -1,7 +1,6 @@
-FROM gcr.io/distroless/base
+FROM debian
 
 COPY perlqube /usr/local/bin/perlqube
 
-ENTRYPOINT [ "perlqube" ]
-
-CMD [ "--help" ]
+RUN apt-get update -qq \
+    && apt-get install -qqy git
