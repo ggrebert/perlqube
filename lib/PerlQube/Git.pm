@@ -87,7 +87,8 @@ sub is_modified_line {
 
     unless ( $self->{_cache_blame_file} eq $file ) {
         $self->{_cache_blame_file} = $file;
-        $self->{_blame} = $self->_blame($file);
+        my @blame = $self->_blame($file);
+        $self->{_blame} = \@blame;
     }
 
     return any { $_ eq $line } @{ $self->{_blame} };
@@ -107,14 +108,12 @@ sub is_new_violation {
         return 1;
     }
 
-    if ($violation->line_number) {
-        # TODO check if is a new violation
-        # maybe line number is not identical
-        if ($self->is_already_exists($violation)) {
-            return 1;
-        }
+    if (!$violation->line_number) {
+        # check if is a new violation
+        return !$self->is_already_exists($violation);
     }
-    elsif ($self->is_modified_line($violation->filename, $violation->line_number)) {
+
+    if ($self->is_modified_line($violation->filename, $violation->line_number)) {
         return 1;
     }
 
@@ -125,13 +124,32 @@ sub is_already_exists {
     my ( $self, $violation ) = @_;
 
     my $currents = $self->{config}->{gitlab}->get_last_scan;
+    foreach my $current (@{ $currents->{violations} }) {
+        if ( $violation->filename ne $current->{filename} ) {
+            next;
+        }
+
+        if ( $violation->source ne $current->{source} ) {
+            next;
+        }
+
+        if ( $violation->policy ne $current->{policy} ) {
+            next;
+        }
+
+        if ( $violation->line_number == $current->{line} ) {
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 sub _blame {
     my ( $self, $file ) = @_;
 
     my ( @stdout, @stderr );
-    my $cmd = [ 'git', 'blame', '-s', '-C', "$self->{ref}..origin/$self->{base}", '--', $file ];
+    my $cmd = [ 'git', 'blame', '-s', '-C', "origin/$self->{base}..$self->{ref}", '--', $file ];
 
     IPC::Run3::run3($cmd, undef, \@stdout, \@stderr);
 
@@ -147,7 +165,7 @@ sub _init_ref {
 
     $ref = $ref || $ENV{CI_COMMIT_SHA};
 
-    unless ( $ref =~ m/^\b[0-9a-f]{5,40}\b$/xms ) {
+    if ( $ref !~ m/^\b[0-9a-f]{5,40}\b$/xms ) {
         PerlQube::Exception::Argument->throw('Invalid git reference.');
     }
 
@@ -159,7 +177,7 @@ sub _init_base {
 
     $base = $base || $ENV{CI_MERGE_REQUEST_TARGET_BRANCH_NAME};
 
-    unless ( $base =~ m/^[\w\/]+$/xms ) {
+    if ( $base !~ m/^[\w\/]+$/xms ) {
         PerlQube::Exception::Argument->throw('Invalid git branch name.');
     }
 
