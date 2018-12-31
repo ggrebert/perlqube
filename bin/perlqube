@@ -66,6 +66,8 @@ least restrictive level, then you can use one of these named values:
     --severity cruel                            --severity 2
     --severity brutal                           --severity 1
 
+If not set, C<perlqube> will read the environment variable B<PERLQUBE_SEVERITY>.
+
 =item C<--json FILE>
 
 =item C<-j FILE>
@@ -75,6 +77,38 @@ Output to JSON file
 =item C<--json-pretty>
 
 Prettify JSON output
+
+=item C<--preview>
+
+With this option, only modified files will be analyzed.
+This option require to use C<GIT>.
+
+=item C<--git-ref>
+
+The GIT commit reference. If not set, C<perlqube> will use the
+environment variable B<CI_COMMIT_SHA>.
+
+=item C<--git-ref-base>
+
+The GIT branch name for reference.
+For GitLab Runner v11.6.0 and earlier, C<perlqube> will use the
+environment variable B<CI_MERGE_REQUEST_TARGET_BRANCH_NAME>.
+
+=item C<--gitlab-token>
+
+TODO
+
+=item C<--gitlab-url>
+
+The GitLab url. If not set, C<perlqube> will try to autodetect it with
+the environment variable B<CI_PROJECT_URL>.
+
+=item C<--gitlab-id>
+
+The GitLab project ID.
+If not set, C<perlqube> will use the environment variable B<CI_MERGE_REQUEST_PROJECT_ID>.
+For GitLab Runner v11.5.0 and above, the environment variable B<CI_PROJECT_ID> is used.
+
 
 =item C<--help>
 

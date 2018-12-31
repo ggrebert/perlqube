@@ -85,7 +85,7 @@ sub is_modified_file {
 sub is_modified_line {
     my ( $self, $file, $line ) = @_;
 
-    unless ( $self->{_cache_blame_file} eq $file ) {
+    if ( $self->{_cache_blame_file} ne $file ) {
         $self->{_cache_blame_file} = $file;
         my @blame = $self->_blame($file);
         $self->{_blame} = \@blame;
