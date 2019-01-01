@@ -1,0 +1,6 @@
+[% USE HTML %]
+<ul class="list-group list-group-flush">
+  [% FOREACH dependency IN analyzer.dependencies %]
+    <li class="list-group-item">[% HTML.escape( dependency ) %]</li>
+  [% END %]
+</ul>

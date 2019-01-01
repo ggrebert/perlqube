@@ -1,0 +1,27 @@
+[% USE HTML %]
+<table class="table table-condensed table-striped dt">
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>Violations</th>
+      <th>Methods</th>
+      <th>Line count</th>
+      <th>Complexity</th>
+      <th>Complexity total</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH file IN analyzer %]
+      [% file_analyse = self.get_file_metrics(file.key) %]
+      [% filename = file.key %]
+      <tr>
+        <td><a href="[% links.files.$filename %]">[% HTML.escape( filename ) %]</a></td>
+        <td>[% HTML.escape( file_analyse.violation_count ) %]</td>
+        <td>[% HTML.escape( file_analyse.sub_count ) %]</td>
+        <td>[% HTML.escape( file_analyse.lines ) %]</td>
+        <td>[% HTML.escape( file_analyse.mccabe_complexity ) %]</td>
+        <td>[% HTML.escape( file_analyse.mccabe_complexity_total ) %]</td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>

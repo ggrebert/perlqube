@@ -14,13 +14,15 @@ build:
     # build
     - perl Build.PL
     - ./Build manifest
-    - ./Build test
+    - ./Build testcover
     - ./Build install
     # package
     - pp -o perlqube bin/perlqube
+  coverage: '/Total(\s+\d+\.\d)+/'
   artifacts:
     paths:
       - perlqube
+      - cover_db
     expire_in: 5 days
 
 deploy:
@@ -42,6 +44,8 @@ critic:
     - >
       if [ -z "${CI_COMMIT_TAG}" ] && [ "$CI_COMMIT_REF_NAME" != "master" ]; then
         export PERLQUBE_OPTS="--preview --git-ref-base master"
+      else
+        export PERLQUBE_OPTS="--html report"
       fi
     - perlqube $PERLQUBE_OPTS lib
   dependencies: []
@@ -51,4 +55,5 @@ critic:
   artifacts:
     paths:
       - perlqube.json
+      - report
     expire_in: 5 days

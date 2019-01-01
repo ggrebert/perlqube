@@ -1,5 +1,8 @@
 package PerlQube::GitLab;
 
+use strict;
+use warnings;
+
 use HTTP::Tiny;
 use IO::Socket::SSL;
 use JSON;

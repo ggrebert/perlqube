@@ -30,6 +30,7 @@ sub run {
         'theme|t=s'         => \$opts->{theme},
         'json|j=s'          => \$opts->{json},
         'json-pretty'       => \$opts->{json_pretty},
+        'html=s'            => \$opts->{html},
         'git-ref=s'         => \$opts->{git_ref},
         'git-ref-base=s'    => \$opts->{git_ref_base},
         'gitlab-token=s'    => \$opts->{gitlab_token},
@@ -48,7 +49,7 @@ sub run {
     };
 
     if (my $e = Exception::Class->caught) {
-        say {*STDERR} $e;
+        say {*STDERR} "\n[ERROR] " . $e->message;
         return $EXIT_FAILURE;
     }
 

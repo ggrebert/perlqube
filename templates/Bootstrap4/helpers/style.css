@@ -1,0 +1,32 @@
+.modal-lg { max-width: 80% }
+
+.card { margin-bottom: 25px; }
+.perlqube-violation { padding: 15px; }
+.perlqube-violation-5 { background: #fffafb }
+.perlqube-violation-4 { background: #fffbf4 }
+.perlqube-violation-3 { background: #fffbf4 }
+.perlqube-violation-2 { background: #f4fdff }
+.perlqube-violation-1 { background: #f4fdff }
+.perlqube-badge { width: 75px; position: absolute; right: 25px; }
+.perlqube-violation-5 .perlqube-badge { background: #dc3545; color: #fff }
+.perlqube-violation-4 .perlqube-badge { background: #ffc107 }
+.perlqube-violation-3 .perlqube-badge { background: #ffc107 }
+.perlqube-violation-2 .perlqube-badge { background: #6c757d }
+.perlqube-violation-1 .perlqube-badge { background: #6c757d }
+.perlqube-violation h4 { cursor: pointer; }
+.perlqube-violation .badge-info { position: absolute; right: 110px }
+
+.node { stroke: #333; cursor: move }
+.node-dependency { fill: #6c757d }
+.node-pkg-current { fill: #ffc107 }
+.node-pkg-parent { fill: #9af35f }
+.node-pkg-child { fill: #5fbdf3 }
+
+.label { fill: #fff }
+.label.label-pkg-parent,
+.label.label-pkg-child,
+.label.label-pkg-current { fill: #333 }
+
+.line { stroke: #999 }
+.line.line-dependency { stroke-dasharray: 5, 5 }
+.line.highlight { stroke: red }

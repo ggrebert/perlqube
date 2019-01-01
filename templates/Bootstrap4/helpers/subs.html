@@ -1,0 +1,19 @@
+[% USE HTML %]
+<table class="table table-condensed table-striped">
+  <thead>
+    <tr>
+      <th>Package</th>
+      <th>Method</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH package IN analyzer.calls %]
+      [% FOREACH method IN package.value %]
+        <tr>
+          <td>[% HTML.escape( package.key ) %]</td>
+          <td>[% HTML.escape( method ) %]</td>
+        </tr>
+      [% END %]
+    [% END %]
+  </tbody>
+</table>

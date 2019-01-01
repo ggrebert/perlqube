@@ -1,0 +1,25 @@
+[% USE HTML %]
+<table class="table table-condensed table-striped">
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>[% HTML.escape( filename ) %]</td>
+    </tr>
+    <tr>
+      <td>Line count</td>
+      <td>[% HTML.escape( metrics.lines ) %]</td>
+    </tr>
+    <tr>
+      <td>Method count</td>
+      <td>[% subs.size %]</td>
+    </tr>
+    <tr>
+      <td>Violation count</td>
+      <td>[% violations.size %]</td>
+    </tr>
+    <tr>
+      <td>Complexity</td>
+      <td>[% HTML.escape( metrics.mccabe_complexity ) %]</td>
+    </tr>
+  </tbody>
+</table>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  [% INCLUDE 'helpers/core-head.html' %]
+  <body>
+    <nav class="navbar navbar-dark bg-dark flex-md-nowrap p-0">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">PerlQube</a>
+    </nav>
+
+    <div class="container-fluid">
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="wrapper col-sm">
+            <div class="card-header"><h2>Details</h2></div>
+            <div class="card-body">
+              <table class="table table-condensed table-striped">
+                  <tbody>
+                    <tr>
+                      <td>Files</td>
+                      <td>[% files.size %]</td>
+                    </tr>
+                    <tr>
+                      <td>Package</td>
+                      <td>[% metrics.package_count %]</td>
+                    </tr>
+                    <tr>
+                      <td>Methods</td>
+                      <td>[% metrics.sub_count %]</td>
+                    </tr>
+                    <tr>
+                      <td>Lines</td>
+                      <td>[% metrics.lines %]</td>
+                    </tr>
+                    <tr>
+                      <td>Violations</td>
+                      <td>[% violations.size %]</td>
+                    </tr>
+                    <tr>
+                      <td>Complexity</td>
+                      <td>[% metrics.main_stats.mccabe_complexity %]</td>
+                    </tr>
+                  </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>Files</h2></div>
+        <div class="card-body">[% INCLUDE 'helpers/files.html' %]</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>Violations</h2></div>
+        <div class="card-body">[% INCLUDE 'helpers/violations-list.html' %]</div>
+      </div>
+
+    </div>
+
+    [% INCLUDE 'helpers/core-js.html' %]
+  </body>
+</html>

@@ -1,0 +1,19 @@
+[% USE HTML %]
+<table class="table table-condensed table-striped dt">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Line count</th>
+      <th>Complexity</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH sub IN subs %]
+      <tr>
+        <td>[% HTML.escape( sub.name ) %]</td>
+        <td>[% HTML.escape( sub.lines ) %]</td>
+        <td>[% HTML.escape( sub.mccabe_complexity ) %]</td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>

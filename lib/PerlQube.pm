@@ -18,11 +18,11 @@ sub new {
 sub critique {
     my ($self) = @_;
 
-    my $scanner    = PerlQube::Scan->new( $self->{config} );
-    my @violations = $scanner->scan();
+    my $scanner = PerlQube::Scan->new( $self->{config} );
+    my $data = $scanner->scan();
 
     foreach my $output ( @{ $self->{config}->{outputs} } ) {
-        $output->process(@violations);
+        $output->process($data);
     }
 
     return 1;

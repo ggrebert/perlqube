@@ -1,0 +1,23 @@
+[% USE HTML %]
+[% index = 0 %]
+[% FOREACH violation IN violations %]
+  [% index = index + 1 %]
+  <div class="card perlqube-violation perlqube-violation-[% violation.severity() %]">
+    <div class="card-header" id="violation-[% index %]">
+      <span class="badge perlqube-badge">Severity [% violation.severity() %]</span>
+      <span class="badge badge-info">L[% violation.line_number() %]</span>
+
+      <h4 data-toggle="collapse" data-target="#violation-diagnostics-[% index %]">
+        [% HTML.escape( violation.description() ) %]
+      </h4>
+    </div>
+
+    <div class="collapse" id="violation-diagnostics-[% index %]">
+      <div class="card-body">
+        <pre><code class="perl">[% violation.source() %]</code></pre>
+        <h5>Diagnostics</h5>
+        [% self.diagnostics_to_html( violation.diagnostics() ) %]
+      </div>
+    </div>
+  </div>
+[% END %]

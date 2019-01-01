@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  [% INCLUDE 'helpers/core-head.html' %]
+  <body>
+    <nav class="navbar navbar-dark bg-dark flex-md-nowrap p-0">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="../index.html">PerlQube</a>
+    </nav>
+
+    <div class="container-fluid">
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="wrapper col-sm">
+            <div class="card-header"><h2>Details</h2></div>
+            <div class="card-body">[% INCLUDE 'helpers/file-details.html' %]</div>
+          </div>
+
+          [% IF analyzer.dependencies.size %]
+            <div class="wrapper col-sm">
+              <div class="card-header"><h2>Dependencies</h2></div>
+              <div class="card-body">[% INCLUDE 'helpers/dependencies.html' %]</div>
+            </div>
+          [% END %]
+
+        </div>
+      </div>
+
+      [% IF subs.size %]
+        <div class="card">
+          <div class="card-header"><h2>Methods</h2></div>
+          <div class="card-body">[% INCLUDE 'helpers/methods.html' %]</div>
+        </div>
+      [% END %]
+
+      [% IF violations.size %]
+        <div class="card">
+          <div class="card-header"><h2>Violations</h2></div>
+          <div class="card-body">[% INCLUDE 'helpers/violations.html' %]</div>
+        </div>
+      [% END %]
+
+      [% IF analyzer.calls.size %]
+        <div class="card">
+          <div class="card-header"><h2>Used static methods</h2></div>
+          <div class="card-body">[% INCLUDE 'helpers/subs.html' %]</div>
+        </div>
+      [% END %]
+
+      [% IF analyzer.tree.children.size || analyzer.tree.parents.size %]
+        <div class="card">
+          <div class="card-header"><h2>Inheritance tree</h2></div>
+          <div class="card-body"><div id="inheritance-tree"></div></div>
+        </div>
+      [% END %]
+
+    </div>
+
+    [% INCLUDE 'helpers/core-js.html' %]
+
+    <script>$(document).ready(function() { [% INCLUDE 'helpers/inheritance.js' %] });</script>
+  </body>
+</html>
