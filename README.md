@@ -22,3 +22,8 @@ perlqube --version
 ```bash
 perlqube --help
 ```
+
+## Demo
+
+* [JSON output](https://gitlab.com/geoffrey-grebert/perlqube/-/jobs/artifacts/master/file/perlqube.json?job=critic)
+* [HTML output](https://gitlab.com/geoffrey-grebert/perlqube/-/jobs/artifacts/master/file/report/index.html?job=critic)
