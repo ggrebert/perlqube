@@ -7,3 +7,6 @@ Build
 Build.bat
 vendor/
 dist/
+cover_db/
+perlqube.json
+report/

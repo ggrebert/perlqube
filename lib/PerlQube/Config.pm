@@ -84,9 +84,15 @@ sub _init_outputs {
     if ( $opts->{json} ) {
         require PerlQube::Output::Json;
 
-        push @outputs, PerlQube::Output::Json->new($opts->{json},
+        push @outputs, PerlQube::Output::Json->new($opts->{json}, {
             pretty => $opts->{json_pretty},
-        );
+        });
+    }
+
+    if ( $opts->{html} ) {
+        require PerlQube::Output::Html;
+
+        push @outputs, PerlQube::Output::Html->new($opts->{html}, $opts);
     }
 
     return \@outputs;

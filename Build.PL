@@ -9,6 +9,11 @@ my $builder = Module::Build::Pluggable->new(
     dist_author          => 'SII',
     dist_version         => '0.1',
     recursive_test_files => 1,
+    share_dir            => {
+        module => {
+            PerlQube => 'templates'
+        }
+    }
 );
 
 $builder->create_build_script();

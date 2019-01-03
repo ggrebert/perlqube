@@ -11,7 +11,7 @@ insert_final_newline = true
 [*.md,*.svg]
 indent_size = false
 
-[*.{yml,yaml}]
+[*.{yml,yaml,html}]
 indent_size = 2
 
 [LICENSE]
