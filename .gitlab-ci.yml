@@ -18,6 +18,8 @@ build:
     - ./Build install
     # package
     - pp -o perlqube bin/perlqube
+  variables:
+    PAR_VERBATIM: 1
   coverage: '/Total(\s+\d+\.\d)+/'
   artifacts:
     paths:
@@ -47,7 +49,7 @@ critic:
       else
         export PERLQUBE_OPTS="--html report"
       fi
-    - perlqube $PERLQUBE_OPTS lib
+    - perlqube $PERLQUBE_OPTS .
   dependencies: []
   variables:
     PERLQUBE_SEVERITY: brutal
