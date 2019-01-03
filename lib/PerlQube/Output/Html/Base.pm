@@ -15,21 +15,20 @@ use PerlQube::Exception;
 use base qw( PerlQube::Output );
 
 sub new {
-    my ( $class, $output, $options ) = @_;
+    my ( $class, @params ) = @_;
 
-    if ( -d $output ) {
+    my $self = $class->SUPER::new(@params);
+    $self->{output} = $self->{config}->{opts}->{html};
+
+    if ( -d $self->{output} ) {
         PerlQube::Exception::FileOpen->throw('HTML output directory already exists');
     }
 
-    File::Path::make_path $output or
+    File::Path::make_path $self->{output} or do {
         PerlQube::Exception::FileOpen->throw('Error while creating directory');
-
-    my $self = {
-        output => $output,
-        options => $options,
     };
 
-    return bless $self, $class;
+    return $self;
 }
 
 sub get_template_namespace {
@@ -212,8 +211,8 @@ sub diagnostics_to_html {
                 $in_paragraph = 1;
             }
 
-            $row =~ s/`([^']+)'/<code>$1<\/code>/xmsg;
-            $row =~ s/'([^'])'/<code>$1<\/code>/xmsg;
+            $row =~ s/`'([^']+)''/<code>$1<\/code>/xmsg;
+            $row =~ s/`([^'])'/<code>$1<\/code>/xmsg;
 
             # find Perl package
             $row =~ s/(\w+::\w+[\w:]+)+/<code>$1<\/code>/xmsg;

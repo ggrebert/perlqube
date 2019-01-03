@@ -11,9 +11,8 @@ use PerlQube::GitLab;
 sub new {
     my ( $class, $opts, @argv ) = @_;
 
-    if (!$opts->{json}) {
-        $opts->{json} = $ENV{PERLQUBE_JSON};
-    }
+    $opts->{json} = $opts->{json} || $ENV{PERLQUBE_JSON};
+    $opts->{gitlab_token} = $opts->{gitlab_token} || $ENV{PERLQUBE_GITLAB_TOKEN};
 
     my $self = bless { opts => $opts }, $class;
 
@@ -83,16 +82,17 @@ sub _init_outputs {
 
     if ( $opts->{json} ) {
         require PerlQube::Output::Json;
+        push @outputs, PerlQube::Output::Json->new($self);
+    }
 
-        push @outputs, PerlQube::Output::Json->new($opts->{json}, {
-            pretty => $opts->{json_pretty},
-        });
+    if ( $self->{gitlab} && $opts->{gitlab_token} ) {
+        require PerlQube::Output::GitLab;
+        push @outputs, PerlQube::Output::GitLab->new($self);
     }
 
     if ( $opts->{html} ) {
         require PerlQube::Output::Html;
-
-        push @outputs, PerlQube::Output::Html->new($opts->{html}, $opts);
+        push @outputs, PerlQube::Output::Html->new($self);
     }
 
     return \@outputs;

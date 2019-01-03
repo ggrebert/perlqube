@@ -3,6 +3,7 @@ package PerlQube::GitLab;
 use strict;
 use warnings;
 
+use Data::Dumper;
 use HTTP::Tiny;
 use IO::Socket::SSL;
 use JSON;
@@ -35,18 +36,7 @@ sub get_last_scan {
 
         my $url = "$self->{url}/api/v4/projects/$self->{project}/jobs/artifacts/$ref/raw/$path?job=$job";
 
-        my $headers = {};
-        if ($self->{token}) {
-            $headers->{'PRIVATE-TOKEN'} = $self->{token};
-        }
-        elsif ($ENV{CI_JOB_TOKEN}) {
-            $headers->{'JOB-TOKEN'} = $ENV{CI_JOB_TOKEN};
-        }
-
-        my $http = HTTP::Tiny->new(
-            default_headers => $headers,
-            verify_SSL => 0,
-        );
+        my $http = $self->_get_client;
 
         my $response = $http->get($url);
 
@@ -58,6 +48,45 @@ sub get_last_scan {
     }
 
     return $self->{_last_scan};
+}
+
+sub post_commit_comment {
+    my ( $self, $note, $path, $line, $line_type ) = @_;
+
+    my $http = $self->_get_client;
+    my $sha = $self->{config}->{git}->{ref};
+    my $project = $self->{project};
+    my $url = "$self->{url}/api/v4/projects/$project/repository/commits/$sha/comments";
+
+    my $response = $http->post_form($url, {
+        note => $note,
+        path => $path,
+        line => $line,
+        line_type => $line_type,
+    });
+
+    if ( !$response->{success} ) {
+        warn 'Error while reporting violation: ' . Data::Dumper::Dumper($response);
+    }
+
+    return $response->{success};
+}
+
+sub _get_client {
+    my ( $self ) = @_;
+
+    my $headers = {};
+    if ($self->{token}) {
+        $headers->{'PRIVATE-TOKEN'} = $self->{token};
+    }
+    elsif ($ENV{CI_JOB_TOKEN}) {
+        $headers->{'JOB-TOKEN'} = $ENV{CI_JOB_TOKEN};
+    }
+
+    return HTTP::Tiny->new(
+        default_headers => $headers,
+        verify_SSL => 0,
+    );
 }
 
 sub _init_url {
