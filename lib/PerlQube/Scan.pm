@@ -195,7 +195,7 @@ sub _find_children {
 
     my @data;
     foreach my $analyze (values %{ $analyzer }) {
-        if ( scalar @{ $analyze->{inheritance} } && grep(/^$package$/, @{ $analyze->{inheritance} }) ) {
+        if ( scalar @{ $analyze->{inheritance} } && grep /^$package$/, @{ $analyze->{inheritance} } ) {
             my @children = $self->_find_children( $analyzer, $analyze->{package} );
 
             push @data, {
@@ -223,7 +223,7 @@ sub _parse_dependencies {
     my @dependencies;
 
     if ( $line =~ m/^\s*use\s+([\w\:]+)/xms ) {
-        if ( $1 !~ m/^(strict|warnings|base|parent|5\..*)$/xms ) {
+        if ( $1 !~ m/^(?:strict|warnings|base|parent|5[.].*)$/xms ) {
             push @dependencies, $1;
         }
     }
@@ -232,7 +232,7 @@ sub _parse_dependencies {
 
         $required =~ s/['"]//xmsg;
         $required =~ s/\//::/xmsg;
-        $required =~ s/\.\w+$//xmsg;
+        $required =~ s/[.]\w+$//xmsg;
 
         push @dependencies, $required;
     }
@@ -275,8 +275,8 @@ sub _parse_method_call {
             $self->{_analyser}->{calls}->{$package} = [];
         }
 
-        if ( $package !~ m/^(shift|self|this)$/xms ) {
-            if ( !grep(/^$method$/, @{ $self->{_analyser}->{calls}->{$package} }) ) {
+        if ( $package !~ m/^(?:shift|self|this)$/xms ) {
+            if ( !grep /^$method$/, @{ $self->{_analyser}->{calls}->{$package} } ) {
                 push @{ $self->{_analyser}->{calls}->{$package} }, $method;
             }
         }

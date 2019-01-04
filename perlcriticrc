@@ -1,6 +1,0 @@
-[-Miscellanea::RequireRcsKeywords]
-[-Modules::RequireVersionVar]
-
-[InputOutput::RequireCheckedSyscalls]
-functions = :builtins
-exclude_functions = print say

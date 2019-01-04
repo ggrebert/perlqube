@@ -13,6 +13,7 @@ requires 'Readonly';
 requires 'Template';
 requires 'Template::Plugin::JSON';
 requires 'Text::Unidecode';
+requires 'Try::Tiny';
 requires 'Unicode::Normalize';
 
 recommends 'JSON::XS';

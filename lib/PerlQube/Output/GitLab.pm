@@ -45,21 +45,21 @@ sub str_to_markdown {
     $content =~ s/^[ ]{4}//xmsg;
 
     my $markdown = q{};
-    my $inScript = 0;
+    my $in_script = 0;
 
     foreach my $row (split /\n/, $content ) {
         if ($row =~ m/^[ ]{2}/xms) {
             $row =~ s/^[ ]{2}//xms;
 
-            if (!$inScript) {
+            if (!$in_script) {
                 $markdown .= "```perl\n";
-                $inScript = 1;
+                $in_script = 1;
             }
         }
         elsif ($row) {
-            if ($inScript) {
+            if ($in_script) {
                 $markdown .= "```\n\n";
-                $inScript = 0;
+                $in_script = 0;
             }
 
             $row =~ s/`'([^']+)''/`$1`/xmsg;
@@ -72,7 +72,7 @@ sub str_to_markdown {
         $markdown .= "$row\n";
     }
 
-    if ($inScript) {
+    if ($in_script) {
         $markdown .= "```\n\n";
     }
 

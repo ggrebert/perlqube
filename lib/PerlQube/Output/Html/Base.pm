@@ -31,7 +31,7 @@ sub new {
     return $self;
 }
 
-sub get_template_namespace {
+sub get_template_namespace {  ## no critic qw(Perl::Critic::Policy::Subroutines::RequireFinalReturn)
     PerlQube::Exception::UnsupportedOperation->throw('This method must be inherited.');
 }
 
@@ -91,7 +91,7 @@ sub tpl_file {
     my ( $self, $filename ) = @_;
 
     my @subs = grep { $_->{path} eq $filename } @{ $self->{subs} };
-    my @violations = sort { $b->severity() <=> $a->severity() } @{ $self->{files}->{$filename} };
+    my @violations = reverse sort { $a->severity <=> $b->severity } @{ $self->{files}->{$filename} };
 
     my $metrics;
     foreach my $file (@{ $self->{file_stats} }) {
@@ -169,7 +169,7 @@ sub slugify {
 
     $input = NFC($input);           # Normalize (recompose) the Unicode string
     $input = unidecode($input);     # Convert non-ASCII characters to closest equivalents
-    $input =~ s/\.\w+$//xms;        # Remove file extantion
+    $input =~ s/[.]\w+$//xms;        # Remove file extantion
     $input =~ s/[^\w\s-]/-/xmsg;    # Remove all characters that are not word characters (includes _), spaces, or hyphens
     $input =~ s/^\s+|\s+$/-/xmsg;   # Trim whitespace from both ends
     $input = lc $input;             # lower case
@@ -212,7 +212,7 @@ sub diagnostics_to_html {
             }
 
             $row =~ s/`'([^']+)''/<code>$1<\/code>/xmsg;
-            $row =~ s/`([^'])'/<code>$1<\/code>/xmsg;
+            $row =~ s/`([^']+)'/<code>$1<\/code>/xmsg;
 
             # find Perl package
             $row =~ s/(\w+::\w+[\w:]+)+/<code>$1<\/code>/xmsg;

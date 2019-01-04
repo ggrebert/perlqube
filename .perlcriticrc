@@ -1,0 +1,6 @@
+[-Miscellanea::RequireRcsKeywords]
+[-Modules::RequireVersionVar]
+[-Perl::Critic::Policy::CodeLayout::RequireTidyCode]
+[-Perl::Critic::Policy::Documentation::RequirePodLinksIncludeText]
+[-Perl::Critic::Policy::Documentation::RequirePodSections]
+[-InputOutput::RequireCheckedSyscalls]

@@ -68,6 +68,14 @@ least restrictive level, then you can use one of these named values:
 
 If not set, C<perlqube> will read the environment variable B<PERLQUBE_SEVERITY>.
 
+=item C<--profile FILE>
+
+=item C<-p FILE>
+
+Directs C<perlcritic> to use a profile named by FILE rather than looking for
+the default F<.perlcriticrc> file in the current directory or your home
+directory.
+
 =item C<--json FILE>
 
 =item C<-j FILE>

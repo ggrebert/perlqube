@@ -6,6 +6,7 @@ use warnings;
 use DateTime;
 use DateTime::Format::RFC3339;
 use DateTimeX::TO_JSON formatter => 'DateTime::Format::RFC3339';
+use English qw( -no_match_vars );
 use JSON;
 
 use base qw( PerlQube::Output );
@@ -52,9 +53,6 @@ sub process {
                 lines => $file->{main_stats}->{lines},
                 mccabe_complexity => $file->{main_stats}->{mccabe_complexity},
                 subs => \@file_subs,
-                violation_count => scalar(
-                    grep {  }
-                )
             };
 
             push @file_stats, $file_metric;
@@ -81,11 +79,11 @@ sub process {
 
     open my $fh, '>:encoding(UTF-8)', $file or do {
         PerlQube::Exception::FileOpen->throw(
-            qq{Could not open file '$self->{output}' $!}
+            qq{Could not open file '$self->{output}' $ERRNO}
         );
     };
 
-    print $fh $output;
+    print {$fh} $output;
 
     close $fh;
 
