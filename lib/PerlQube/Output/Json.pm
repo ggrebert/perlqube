@@ -10,17 +10,6 @@ use JSON;
 
 use base qw( PerlQube::Output );
 
-sub new {
-    my ( $class, $output, $options ) = @_;
-
-    my $self = bless {
-        output => $output,
-        options => $options,
-    }, $class;
-
-    return $self;
-}
-
 sub Perl::Critic::Violation::TO_JSON {
     my ( $violation ) = @_;
 
@@ -42,7 +31,7 @@ sub process {
 
     my $json = JSON->new->convert_blessed;
 
-    if ( $self->{options}->{pretty} ) {
+    if ( $self->{config}->{opts}->{json_pretty} ) {
         $json->pretty;
     }
 
@@ -88,10 +77,13 @@ sub process {
 
     $output = $json->encode($output);
 
-    open my $fh, '>:encoding(UTF-8)', $self->{output}
-        or PerlQube::Exception::FileOpen->throw(
+    my $file = $self->{config}->{opts}->{json} || $ENV{PERLQUBE_JSON};
+
+    open my $fh, '>:encoding(UTF-8)', $file or do {
+        PerlQube::Exception::FileOpen->throw(
             qq{Could not open file '$self->{output}' $!}
         );
+    };
 
     print $fh $output;
 

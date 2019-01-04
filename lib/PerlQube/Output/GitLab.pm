@@ -3,13 +3,43 @@ package PerlQube::Output::GitLab;
 use strict;
 use warnings;
 
+use File::ShareDir;
+use Template;
+
 use base 'PerlQube::Output';
 
 sub process {
-    my ( $self ) = @_;
+    my ( $self, $data ) = @_;
+
+    my $directory = File::ShareDir::module_dir('PerlQube');
+
+    my $template = Template->new({
+        INCLUDE_PATH => "${directory}/GitLab",
+        ENCODING     => 'utf8',
+        STRICT       => 0,
+    });
+
+    foreach my $violation ( @{$data->{violations}} ) {
+        my $vars = {
+            violation => $violation,
+            self => $self,
+        };
+
+        my $comment = q{};
+        $template->process('note.md', $vars, \$comment) or do {
+            warn $template->error;
+        };
+
+        $self->{config}->{gitlab}->post_commit_comment(
+            $comment,
+            $violation->filename,
+            $violation->line_number,
+            'new'
+        );
+    }
 }
 
-sub _to_markdown {
+sub str_to_markdown {
     my ( $self, $content ) = @_;
 
     $content =~ s/^[ ]{4}//xmsg;
@@ -32,8 +62,11 @@ sub _to_markdown {
                 $inScript = 0;
             }
 
+            $row =~ s/`'([^']+)''/`$1`/xmsg;
             $row =~ s/`([^']+)'/`$1`/xmsg;
-            $row =~ s/'([^'])'/`$1`/xmsg;
+
+            # find Perl package
+            $row =~ s/(\w+::\w+[\w:]+)+/`$1`/xmsg;
         }
 
         $markdown .= "$row\n";

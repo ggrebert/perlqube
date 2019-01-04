@@ -49,7 +49,7 @@ sub run {
     };
 
     if (my $e = Exception::Class->caught) {
-        say {*STDERR} "\n[ERROR] " . $e->message;
+        say {*STDERR} "\n[ERROR] " . $e;
         return $EXIT_FAILURE;
     }
 

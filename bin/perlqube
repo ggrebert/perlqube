@@ -96,7 +96,10 @@ environment variable B<CI_MERGE_REQUEST_TARGET_BRANCH_NAME>.
 
 =item C<--gitlab-token>
 
-TODO
+The token to access to GitLab API. If not set, C<perlqube> will
+use the environment variable B<PERLQUBE_GITLAB_TOKEN>.
+
+This option is required if you want to send preview report to GitLab.
 
 =item C<--gitlab-url>
 
