@@ -10,6 +10,7 @@ use Exporter 'import';
 use Getopt::Long;
 use Pod::Usage;
 use Readonly;
+use Try::Tiny;
 
 use PerlQube;
 
@@ -44,14 +45,14 @@ sub run {
         -verbose    => 1
     );
 
-    eval {
+    try {
         PerlQube->new($opts, @ARGV)->critique();
-    };
-
-    if (my $e = Exception::Class->caught) {
-        say {*STDERR} "\n[ERROR] " . $e;
-        return $EXIT_FAILURE;
     }
+    catch {
+        say {*STDERR} "\n[ERROR] " . $ARG;
+
+        return $EXIT_FAILURE;
+    };
 
     return $EXIT_SUCCESS;
 }
@@ -71,7 +72,9 @@ sub version {
         qq{OS ARCH:\t$Config{archname}},
     );
 
-    say {*STDOUT} $_ for @infos;
+    for my $info (@infos) {
+        say {*STDOUT} $info;
+    }
 
     exit $EXIT_SUCCESS;
 }

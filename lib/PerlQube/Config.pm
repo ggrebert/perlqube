@@ -43,6 +43,7 @@ sub _init {
     }
 
     $self->{files} = \@files;
+    $opts->{profile} = $self->_get_profile($opts);
 
     $self->{perlcritic} = Perl::Critic->new(
         -severity => $opts->{severity} || $ENV{PERLQUBE_SEVERITY},
@@ -96,6 +97,12 @@ sub _init_outputs {
     }
 
     return \@outputs;
+}
+
+sub _get_profile {
+    my ( $self, $opts ) = @_;
+
+    return $opts->{profile} || $ENV{PERLQUBE_PROFILE};
 }
 
 1;

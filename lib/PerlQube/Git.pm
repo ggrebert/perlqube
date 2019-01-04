@@ -13,7 +13,7 @@ use PerlQube::Exception;
 sub new {
     my ( $class, $ref, $base, $config ) = @_;
 
-    unless (IPC::Cmd::can_run('git')) {
+    if ( !IPC::Cmd::can_run('git') ) {
         PerlQube::Exception::Command->throw('Git is not installed');
     }
 
@@ -42,7 +42,7 @@ sub get_modified_files {
 sub get_files_status {
     my ( $self ) = @_;
 
-    unless (defined $self->{_files_status}) {
+    if ( !defined $self->{_files_status} ) {
         $self->{_files_status} = {};
 
         my ( @stdout, @stderr );
@@ -153,11 +153,11 @@ sub _blame {
 
     IPC::Run3::run3($cmd, undef, \@stdout, \@stderr);
 
-    if ($? >> 8) {
+    if ($CHILD_ERROR >> 8) {
         PerlQube::Exception::Git->throw(qq{Cannot blame file: @stderr});
     }
 
-    return join(q{}, @stdout) =~ m/^[0-9a-f]+\s+(\d+)\)/xmsg;
+    return join(q{}, @stdout) =~ m/^[\da-f]+\s+(\d+)[)]/xmsg;
 }
 
 sub _init_ref {
@@ -165,7 +165,7 @@ sub _init_ref {
 
     $ref = $ref || $ENV{CI_COMMIT_SHA};
 
-    if ( $ref !~ m/^\b[0-9a-f]{5,40}\b$/xms ) {
+    if ( $ref !~ m/^\b[\da-f]{5,40}\b$/xms ) {
         PerlQube::Exception::Argument->throw('Invalid git reference.');
     }
 

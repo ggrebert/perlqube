@@ -29,7 +29,7 @@ sub new {
 sub get_last_scan {
     my ( $self ) = @_;
 
-    unless ($self->{_last_scan}) {
+    if ( !$self->{_last_scan} ) {
         my $ref = $self->{config}->{git}->{base};
         my $path = $self->{config}->{opts}->{json};
         my $job = $ENV{CI_JOB_NAME};
@@ -40,7 +40,7 @@ sub get_last_scan {
 
         my $response = $http->get($url);
 
-        unless ( $response->{success} ) {
+        if ( !$response->{success} ) {
             PerlQube::Exception::Git->throw('Error while fetching last scan result.');
         }
 
