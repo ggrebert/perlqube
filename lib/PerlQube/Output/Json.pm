@@ -4,35 +4,37 @@ use strict;
 use warnings;
 
 use DateTime;
-use DateTime::Format::RFC3339;
-use DateTimeX::TO_JSON formatter => 'DateTime::Format::RFC3339';
 use English qw( -no_match_vars );
 use JSON;
 
 use base qw( PerlQube::Output );
 
-sub Perl::Critic::Violation::TO_JSON {
-    my ( $violation ) = @_;
-
-    return {
-        filename    => $violation->{_filename},
-        line        => $violation->line_number(),
-        column      => $violation->column_number(),
-        explanation => $violation->{_explanation},
-        severity    => $violation->severity(),
-        source      => $violation->{_source},
-        policy      => $violation->policy(),
-        description => $violation->description(),
-        diagnostics => $violation->diagnostics(),
-    };
-}
-
 sub process {
     my ( $self, $data ) = @_;
 
+    my $output = $self->get_json($data, $self->{config}->{opts}->{json_pretty});
+
+    my $file = $self->{config}->{opts}->{json} || $ENV{PERLQUBE_JSON};
+
+    open my $fh, '>:encoding(UTF-8)', $file or do {
+        PerlQube::Exception::FileOpen->throw(
+            qq{Could not open file '$self->{output}' $ERRNO}
+        );
+    };
+
+    print {$fh} $output;
+
+    close $fh;
+
+    return $output;
+}
+
+sub get_json {
+    my ( undef, $data, $pretty ) = @_;
+
     my $json = JSON->new->convert_blessed;
 
-    if ( $self->{config}->{opts}->{json_pretty} ) {
+    if ( $pretty ) {
         $json->pretty;
     }
 
@@ -73,21 +75,7 @@ sub process {
         $output->{analyzer} = $data->{analyzer};
     }
 
-    $output = $json->encode($output);
-
-    my $file = $self->{config}->{opts}->{json} || $ENV{PERLQUBE_JSON};
-
-    open my $fh, '>:encoding(UTF-8)', $file or do {
-        PerlQube::Exception::FileOpen->throw(
-            qq{Could not open file '$self->{output}' $ERRNO}
-        );
-    };
-
-    print {$fh} $output;
-
-    close $fh;
-
-    return $output;
+    return $json->encode($output);
 }
 
 1;

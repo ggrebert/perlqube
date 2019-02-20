@@ -29,6 +29,7 @@ sub run {
         'severity|s=s'      => \$opts->{severity},
         'profile|p=s'       => \$opts->{profile},
         'theme|t=s'         => \$opts->{theme},
+        'skip-metrics'      => \$opts->{skip_metrics},
         'json|j=s'          => \$opts->{json},
         'json-pretty'       => \$opts->{json_pretty},
         'html=s'            => \$opts->{html},

@@ -1,0 +1,185 @@
+<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ filename }}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="container-fluid">
+          <div class="row">
+
+            <div class="col-sm">
+              <div class="card-header"><h2>Details</h2></div>
+              <div class="card-body">
+                <table class="table table-condensed table-striped">
+                  <tbody>
+                    <tr>
+                      <td>Lines</td>
+                      <td>{{ metrics.lines }}</td>
+                    </tr>
+                    <tr>
+                      <td>Methods</td>
+                      <td>{{ metrics.subs.length }}</td>
+                    </tr>
+                    <tr>
+                      <td>Violations</td>
+                      <td>{{ violations.length }}</td>
+                    </tr>
+                    <tr>
+                      <td>Complexity</td>
+                      <td>{{ metrics.mccabe_complexity }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {{#if analyzer.dependencies.length}}
+              <div class="col-sm">
+                <div class="card-header"><h2>Dependencies</h2></div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    {{#each analyzer.dependencies}}
+                      <li class="list-group-item">{{this}}</li>
+                    {{~/each}}
+                  </ul>
+                </div>
+              </div>
+            {{/if}}
+
+          </div>
+        </div>
+
+        {{#if metrics.subs.length}}
+          <div class="card">
+            <div class="card-header collapsible">
+              <h2>
+                <i class="material-icons collapse-icon">keyboard_arrow_up</i>
+                Methods
+              </h2>
+            </div>
+
+            <div class="card-body collapse show">
+              <table class="table table-condensed table-striped perlqube-file-subs"></table>
+            </div>
+          </div>
+        {{/if}}
+
+        {{#if violations.length}}
+          <div class="card">
+            <div class="card-header collapsible">
+              <h2>
+                <i class="material-icons collapse-icon">keyboard_arrow_up</i>
+                Violations
+              </h2>
+            </div>
+
+            <div class="card-body collapse show">
+              {{#each violations}}
+                <div class="card card-severity-{{ severity }}">
+                  <div class="card-header collapsible">
+                    <h5 class="modal-title">
+                      <i class="material-icons collapse-icon">keyboard_arrow_down</i>
+                      {{ description }}
+                      <div class="badges">
+                          <span class="badge badge-severity-{{ severity }}">{{{severitytostr severity}}}</span>
+                          <span class="badge badge-line">L{{ line }}</span>
+                      </div>
+                    </h5>
+                  </div>
+                  <div class="card-body collapse">
+                    <table class="table table-condensed table-striped">
+                      <tbody>
+                        <tr>
+                          <td>Policy</td>
+                          <td>{{{policy-link policy}}}</td>
+                        </tr>
+                        <tr>
+                          <td>Line</td>
+                          <td>{{ line }}</td>
+                        </tr>
+                        <tr>
+                          <td>Severity</td>
+                          <td>{{{severitytostr severity}}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <pre><code class="perl">{{ source }}</code></pre>
+
+                    <hr />
+
+                    <h4>Diagnostics</h4>
+                    {{{podtohtml diagnostics}}}
+                  </div>
+                </div>
+              {{~/each}}
+            </div>
+          </div>
+        {{/if}}
+
+        {{#if analyzer.calls}}
+          <div class="card">
+            <div class="card-header collapsible">
+              <h2>
+                <i class="material-icons collapse-icon">keyboard_arrow_up</i>
+                Used static methods
+              </h2>
+            </div>
+
+            <div class="card-body collapse show">
+              <table class="table table-condensed table-striped">
+                <thead>
+                  <tr>
+                    <th>Package</th>
+                    <th>Method</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each analyzer.calls}}
+                    <tr>
+                      <td>{{@key}}</td>
+                      <td>{{this}}</td>
+                    </tr>
+                  {{~/each}}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {{/if}}
+
+        {{#if analyzer.tree.children}}
+          <div class="card">
+            <div class="card-header collapsible">
+              <h2>
+                <i class="material-icons collapse-icon">keyboard_arrow_up</i>
+                Children packages
+              </h2>
+            </div>
+            <div class="card-body collapse show">
+              <ul class="treeview">{{{inheritance-children analyzer.tree.children}}}</ul>
+            </div>
+          </div>
+        {{/if}}
+
+        {{#if analyzer.tree.parents}}
+          <div class="card">
+            <div class="card-header collapsible">
+              <h2>
+                <i class="material-icons collapse-icon">keyboard_arrow_up</i>
+                Inheritance tree
+              </h2>
+            </div>
+            <div class="card-body collapse show">
+              <div class="inheritance-tree"></div>
+            </div>
+          </div>
+        {{/if}}
+
+      </div>
+    </div>
+  </div>
+  </div>
