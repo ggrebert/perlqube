@@ -60,8 +60,11 @@ sub process {
 
     $self->{files} = \%files;
     $self->{severities} = \%severities;
-    $self->{file_stats} = $data->{metrics}->file_stats;
-    $self->{subs} = $data->{metrics}->subs;
+
+    if ( $data->{metrics} ) {
+        $self->{file_stats} = $data->{metrics}->file_stats;
+        $self->{subs} = $data->{metrics}->subs;
+    }
 
     return $self->template;
 }
@@ -127,10 +130,10 @@ sub tpl_file {
     return $output;
 }
 
-sub tpl_index {
+sub get_index_vars {
     my ( $self, $links ) = @_;
 
-    my $vars = {
+    return {
         metrics => $self->{metrics},
         analyzer => $self->{analyzer},
         violations => $self->{violations},
@@ -141,8 +144,12 @@ sub tpl_index {
         links => $links,
         self => $self,
     };
+}
 
-    $self->tpl_process('index.html', $vars, 'index.html');
+sub tpl_index {
+    my ( $self, $links ) = @_;
+
+    $self->tpl_process('index.html', $self->get_index_vars, 'index.html');
 }
 
 sub get_file_metrics {

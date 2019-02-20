@@ -76,6 +76,17 @@ Directs C<perlcritic> to use a profile named by FILE rather than looking for
 the default F<.perlcriticrc> file in the current directory or your home
 directory.
 
+=item C<--skip-metrics>
+
+Don't analyse perl files. Only C<perlcritic> violations are reported.
+
+Metrics report contains:
+
+    * Code complexity
+    * Sub analysis
+    * Dependencies
+    * Package inheritance
+
 =item C<--json FILE>
 
 =item C<-j FILE>

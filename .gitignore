@@ -10,3 +10,5 @@ dist/
 cover_db/
 perlqube.json
 report/
+.vscode/
+.vstags

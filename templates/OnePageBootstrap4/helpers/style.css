@@ -1,0 +1,40 @@
+.modal-dialog { max-width: 95% }
+
+.card { margin-bottom: 25px; }
+.card-header[data-toggle="collapse"] { cursor: pointer; }
+.collapsible { cursor: pointer; }
+
+ul.treeview { padding: 0 }
+ul.treeview h5 { padding-left: 25px }
+ul.treeview h5.collapsible { padding-left: 0 }
+
+table tbody td a { display: block }
+
+.card-severity-5 { background: #fffafb }
+.card-severity-4 { background: #fffbf4 }
+.card-severity-3 { background: #fffbf4 }
+.card-severity-2 { background: #f4fdff }
+.card-severity-1 { background: #f4fdff }
+
+.badges { float: right }
+.badge-line { color: white; background: #17a2b8 }
+.badge-severity-5 { background: #dc3545; color: #fff }
+.badge-severity-4 { background: #ffc107 }
+.badge-severity-3 { background: #ffc107 }
+.badge-severity-2 { background: #6c757d; color: white }
+.badge-severity-1 { background: #6c757d; color: white }
+
+.node { stroke: #333; cursor: move }
+.node-dependency { fill: #6c757d }
+.node-pkg-current { fill: #ffc107 }
+.node-pkg-parent { fill: #9af35f }
+.node-pkg-child { fill: #5fbdf3 }
+
+.label { fill: #fff }
+.label.label-pkg-parent,
+.label.label-pkg-child,
+.label.label-pkg-current { fill: #333 }
+
+.line { stroke: #999 }
+.line.line-dependency { stroke-dasharray: 5, 5 }
+.line.highlight { stroke: red }

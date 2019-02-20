@@ -15,6 +15,25 @@ use Safe;
 
 use PerlQube::Exception;
 
+use DateTime::Format::RFC3339;
+use DateTimeX::TO_JSON formatter => 'DateTime::Format::RFC3339';
+
+sub Perl::Critic::Violation::TO_JSON {
+    my ( $violation ) = @_;
+
+    return {
+        filename    => $violation->{_filename},
+        line        => $violation->line_number(),
+        column      => $violation->column_number(),
+        explanation => $violation->{_explanation},
+        severity    => $violation->severity(),
+        source      => $violation->{_source},
+        policy      => $violation->policy(),
+        description => $violation->description(),
+        diagnostics => $violation->diagnostics(),
+    };
+}
+
 sub new {
     my ( $class, $config ) = @_;
 
@@ -31,9 +50,11 @@ sub scan {
     my @violations = $self->perlcritic();
     my $data = { violations => \@violations };
 
-    if (!$self->{config}->{opts}->{preview}) {
-        $data->{metrics}  = $self->metrics();
-        $data->{analyzer} = $self->analyzer();
+    if ( !$self->{config}->{opts}->{preview} ) {
+        if ( !$self->{config}->{opts}->{skip_metrics} ) {
+            $data->{metrics}  = $self->metrics();
+            $data->{analyzer} = $self->analyzer();
+        }
     }
 
     return $data;
@@ -87,50 +108,11 @@ sub analyzer {
             warn("Can't open file $file for read: $!");
         };
 
-        $self->{_analyser} = {
-            dependencies => [],
-            inheritance => [],
-            call => {},
-        };
-
-        $self->{_in_pod} = 0;
-
-        while (<$fh>) {
-            my $line = $_;
-
-            $line =~ s/\r?\n$//xms;
-
-            if ( $line =~ m/^=\w+/xms && $line !~ m/^=cut/xms ) {
-                $self->{_in_pod} = 1;
-            }
-
-            if ( $self->{_in_pod} ) {
-                if ( $line =~ m/^=cut/xms ) {
-                    $self->{_in_pod} = 0;
-                }
-
-                next;
-            }
-
-            if ( $line =~ m/^\s*__(END|DATA)__/xms ) {
-                last;
-            }
-
-            # skip lines which are not belong to package namespace
-            if ( !$self->{_analyser}->{package} ) {
-                $self->{_analyser}->{package} = $self->_parse_package($line);
-                next;
-            }
-
-            push @{ $self->{_analyser}->{dependencies} }, $self->_parse_dependencies($line);
-
-            push @{ $self->{_analyser}->{inheritance} }, $self->_parse_inheritance($line, $fh);
-
-            # call method of another package
-            $self->_parse_method_call($line);
-        }
+        my $code = $self->_analyzer($fh);
 
         close $fh;
+
+        push @{ $self->{_analyser}->{inheritance} }, $self->_parse_isa($code);
 
         $analyzer->{$file} = $self->{_analyser};
     }
@@ -223,7 +205,7 @@ sub _parse_dependencies {
     my @dependencies;
 
     if ( $line =~ m/^\s*use\s+([\w\:]+)/xms ) {
-        if ( $1 !~ m/^(?:strict|warnings|base|parent|5[.].*)$/xms ) {
+        if ( $1 !~ m/^(?:strict|warnings|base|parent|constant|lib|vars|5[.].*)$/xms ) {
             push @dependencies, $1;
         }
     }
@@ -237,7 +219,7 @@ sub _parse_dependencies {
         push @dependencies, $required;
     }
 
-    return @dependencies;
+    return List::Util::uniq @dependencies;
 }
 
 sub _parse_inheritance {
@@ -261,7 +243,20 @@ sub _parse_inheritance {
         push @parents, @mods;
     }
 
-    return @parents;
+    return List::Util::uniq @parents;
+}
+
+sub _parse_isa {
+    my ( $self, $src ) = @_;
+
+    my @parents;
+
+    if ( $src =~ m/\@ISA\s*=\s*(.+?);/sm ) {
+        my $isa_list = $1;
+        (@parents) = Safe->new()->reval($isa_list);
+    }
+
+    return List::Util::uniq @parents;
 }
 
 sub _parse_method_call {
@@ -281,6 +276,59 @@ sub _parse_method_call {
             }
         }
     }
+}
+
+sub _analyzer {
+    my ( $self, $fh ) = @_;
+
+    my $code = q{};
+
+    $self->{_analyser} = {
+        dependencies => [],
+        inheritance => [],
+        call => {},
+    };
+
+    $self->{_in_pod} = 0;
+
+    while (<$fh>) {
+        $code .= $_;
+
+        my $line = $_;
+
+        $line =~ s/\r?\n$//xms;
+
+        if ( $line =~ m/^=\w+/xms && $line !~ m/^=cut/xms ) {
+            $self->{_in_pod} = 1;
+        }
+
+        if ( $self->{_in_pod} ) {
+            if ( $line =~ m/^=cut/xms ) {
+                $self->{_in_pod} = 0;
+            }
+
+            next;
+        }
+
+        if ( $line =~ m/^\s*__(END|DATA)__/xms ) {
+            last;
+        }
+
+        # skip lines which are not belong to package namespace
+        if ( !$self->{_analyser}->{package} ) {
+            $self->{_analyser}->{package} = $self->_parse_package($line);
+            next;
+        }
+
+        push @{ $self->{_analyser}->{dependencies} }, $self->_parse_dependencies($line);
+
+        push @{ $self->{_analyser}->{inheritance} }, $self->_parse_inheritance($line, $fh);
+
+        # call method of another package
+        $self->_parse_method_call($line);
+    }
+
+    return $code;
 }
 
 1;
